@@ -29,7 +29,7 @@ void main(){
 	{
 		vec4 fPos4Component = (model * vec4(vPos, 1.0));
 		gl_Position = projection * view *  fPos4Component;
-		fNormal = mat3(transpose(inverse(instanceTransform))) * vNormal;
+		fNormal = mat3(transpose(inverse(model))) * vNormal;
 		fPos = fPos4Component.xyz;
 	}
 

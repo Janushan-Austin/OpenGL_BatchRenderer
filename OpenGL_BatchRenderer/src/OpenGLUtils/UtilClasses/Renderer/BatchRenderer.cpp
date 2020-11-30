@@ -1,17 +1,17 @@
-#include "Renderer.h"
+#include "BatchRenderer.h"
 
 #include "OpenGLUtils/Includes/OpenGLIncludeHeaders.h"
 
 #include <iostream>
 
 //static initialization section
-std::unordered_map<MaterialID, InstanceRenderer::MaterialMapStruct> InstanceRenderer::MaterialMap{};
-glm::mat4 InstanceRenderer::ProjectionMatrix{ 1.0f }, InstanceRenderer::ViewMatrix{ 1.0f };
-uint32_t InstanceRenderer::InstancingVAO{ 0 }, InstanceRenderer::InstancingVBO{ 0 };
-uint32_t InstanceRenderer::MaxInstances{ 1000000 };
-bool InstanceRenderer::Initialized{ false };
+std::unordered_map<MaterialID, BatchRenderer::MaterialMapStruct> BatchRenderer::MaterialMap{};
+glm::mat4 BatchRenderer::ProjectionMatrix{ 1.0f }, BatchRenderer::ViewMatrix{ 1.0f };
+uint32_t BatchRenderer::InstancingVAO{ 0 }, BatchRenderer::InstancingVBO{ 0 };
+uint32_t BatchRenderer::MaxInstances{ 1000000 };
+bool BatchRenderer::Initialized{ false };
 
-bool InstanceRenderer::Init()
+bool BatchRenderer::Init()
 {
 	MaterialMap.clear();
 
@@ -42,14 +42,14 @@ bool InstanceRenderer::Init()
 	return Initialized;
 }
 
-void InstanceRenderer::BeginScene(const glm::mat4 projectionMatrix, const Camera& camera)
+void BatchRenderer::BeginScene(const glm::mat4 projectionMatrix, const Camera& camera)
 {
 	//MaterialMap.clear();
 	ProjectionMatrix = projectionMatrix;
 	ViewMatrix = camera.GenerateViewMatrix();
 }
 
-void InstanceRenderer::Draw(Mesh& mesh, glm::mat4& transform)
+void BatchRenderer::Draw(Mesh& mesh, glm::mat4& transform)
 {
 	MeshID meshID = mesh.GetMeshID();
 	Material* material = mesh.GetMaterial();
@@ -58,7 +58,7 @@ void InstanceRenderer::Draw(Mesh& mesh, glm::mat4& transform)
 	PutInRenderingBucket(material, materialID, &mesh, meshID, transforms);
 }
 
-void InstanceRenderer::Draw(Mesh& mesh, std::vector<glm::mat4>& transforms)
+void BatchRenderer::Draw(Mesh& mesh, std::vector<glm::mat4>& transforms)
 {
 	MeshID meshID = mesh.GetMeshID();
 	Material* material = mesh.GetMaterial();
@@ -67,7 +67,7 @@ void InstanceRenderer::Draw(Mesh& mesh, std::vector<glm::mat4>& transforms)
 	PutInRenderingBucket(material, materialID, &mesh, meshID, transforms);
 }
 
-void InstanceRenderer::Draw(std::vector<Mesh>& meshesToRender, std::vector<glm::mat4>& transforms)
+void BatchRenderer::Draw(std::vector<Mesh>& meshesToRender, std::vector<glm::mat4>& transforms)
 {
 	for (int i = 0; i < meshesToRender.size(); i++)
 	{
@@ -80,7 +80,7 @@ void InstanceRenderer::Draw(std::vector<Mesh>& meshesToRender, std::vector<glm::
 	}
 }
 
-void InstanceRenderer::Draw(std::vector<Mesh>& meshesToRender, std::vector<std::vector<glm::mat4>>& transforms)
+void BatchRenderer::Draw(std::vector<Mesh>& meshesToRender, std::vector<std::vector<glm::mat4>>& transforms)
 {
 	for (int i = 0; i < transforms.size(); i++)
 	{
@@ -88,12 +88,12 @@ void InstanceRenderer::Draw(std::vector<Mesh>& meshesToRender, std::vector<std::
 	}
 }
 
-void InstanceRenderer::EndScene()
+void BatchRenderer::EndScene()
 {
 	Flush();
 }
 
-void InstanceRenderer::Flush()
+void BatchRenderer::Flush()
 {
 
 	uint32_t maxSizeofBuffer = sizeof(glm::mat4) * MaxInstances;
@@ -133,7 +133,7 @@ void InstanceRenderer::Flush()
 			glBindBuffer(GL_ARRAY_BUFFER, InstancingVBO);
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->GetEBO());
-			 
+
 			uint32_t indicesCount = mesh->GetIndicesCount();
 
 			while (totalInstanceCount > MaxInstances)
@@ -156,7 +156,7 @@ void InstanceRenderer::Flush()
 	}
 }
 
-void InstanceRenderer::PutInRenderingBucket(Material* material, MaterialID materialID, Mesh* mesh, MeshID meshID, std::vector<glm::mat4>& transforms)
+void BatchRenderer::PutInRenderingBucket(Material* material, MaterialID materialID, Mesh* mesh, MeshID meshID, std::vector<glm::mat4>& transforms)
 {
 	const auto& materialIterator = MaterialMap.find(materialID);
 
@@ -179,7 +179,7 @@ void InstanceRenderer::PutInRenderingBucket(Material* material, MaterialID mater
 	if (meshIterator != meshMap.end())
 	{
 		std::vector<glm::mat4>& meshTransforms = meshIterator->second.meshTransforms;
-		uint32_t tempInstanceCount =  meshIterator->second.instanceCount + transforms.size();
+		uint32_t tempInstanceCount = meshIterator->second.instanceCount + transforms.size();
 		if (tempInstanceCount > meshTransforms.capacity())
 		{
 			meshTransforms.reserve(meshTransforms.size() * 2 + transforms.size());
@@ -188,10 +188,10 @@ void InstanceRenderer::PutInRenderingBucket(Material* material, MaterialID mater
 		//meshTransforms.insert(meshTransforms.begin() + meshIterator->second.instanceCount, transforms.begin(), transforms.end());
 		uint32_t offset = meshIterator->second.instanceCount;
 		memcpy(&meshTransforms.data()[offset], transforms.data(), transforms.size() * sizeof(glm::mat4));
-;		/*for (int i = 0; i < transforms.size(); i++, offset++)
-		{
-			meshTransforms[offset] = transforms[i];
-		}*/
+		;		/*for (int i = 0; i < transforms.size(); i++, offset++)
+				{
+					meshTransforms[offset] = transforms[i];
+				}*/
 		meshIterator->second.instanceCount = tempInstanceCount;
 	}
 	else

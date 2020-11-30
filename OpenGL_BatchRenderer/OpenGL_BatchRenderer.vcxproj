@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\OpenGLUtils\UtilClasses\Renderer\BatchRenderer.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\OpenGLUtils\Callbacks\CallBackFunctions.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="src\stb_Image_Implementation\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\OpenGLUtils\UtilClasses\Renderer\BatchRenderer.h" />
     <ClInclude Include="src\OpenGLUtils\Callbacks\CallBackFunctions.h" />
     <ClInclude Include="src\OpenGLUtils\Includes\OpenGLIncludeHeaders.h" />
     <ClInclude Include="src\OpenGLUtils\Includes\stb_image_include.h" />

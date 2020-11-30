@@ -45,6 +45,8 @@ int main() {
 		glfwSetScrollCallback(window, mouse_Scroll_Callback);
 	}
 
+	glfwSwapInterval(0);
+
 	//Initialize GLAD (load all OpenGL function pointers)
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD!\n";
@@ -231,7 +233,7 @@ int main() {
 	lightingMaterial.AddUniform("view", UniformTypes::MAT4, glm::mat4(1.0f));
 	lightingMaterial.AddUniform("projection", UniformTypes::MAT4, glm::mat4(2.0f));
 
-	Renderer::Init();
+	InstanceRenderer::Init();
 
 	std::vector<glm::mat4> nanoSuitTransforms;
 	int rows = 100;
@@ -252,16 +254,16 @@ int main() {
 	float shininess = 32.0f;
 	glm::vec3 pointLightPositions[] = {
 		glm::vec3(0.7f,  10.0f,  -3.0f),
-		glm::vec3(2.3f,  10.0f, -4.0f),
-		glm::vec3(4.0f,  10.0f, 12.0f),
-		glm::vec3(0.0f,  10.0f, -1.0f)
+		glm::vec3(20.3f, 10.0f, -4.0f),
+		glm::vec3(400.0f,10.0f, 120.0f),
+		glm::vec3(0.0f,  10.0f, 100.0f)
 	};
 	glm::vec3 pointLightColors[] =
 	{
 		glm::vec3(0.5f,  0.8f,  0.2f),
-		glm::vec3(0.8f,  0.8f,  0.8f),
-		glm::vec3(0.8f,  0.8f,  0.8f),
-		glm::vec3(0.8f,  0.8f,  0.8f)
+		glm::vec3(0.5f,  0.0f,  0.2f),
+		glm::vec3(0.5f,  0.0f,  0.2f),
+		glm::vec3(0.5f,  0.0f,  0.2f)
 	};
 
 	std::vector<glm::mat4> pointLightTransforms(numberOfPointLights);
@@ -282,7 +284,7 @@ int main() {
 		processInput(window);
 		processCameraInput(window, fpsCamera, deltaTime);
 
-		Renderer::BeginScene(projection, fpsCamera);
+		InstanceRenderer::BeginScene(projection, fpsCamera);
 
 		lightingMaterial.GetShader()->Bind();
 		int useInstancing = 1;
@@ -300,7 +302,7 @@ int main() {
 		glm::mat4 model(1.0f);
 
 		//Renderer::Draw(backPackMeshPtrs, nanoSuitTransforms);
-		Renderer::Draw(backpackModel.GetMeshes(), nanoSuitTransforms);
+		InstanceRenderer::Draw(backpackModel.GetMeshes(), nanoSuitTransforms);
 
 		
 
@@ -349,9 +351,9 @@ int main() {
 
 
 		flatColorMaterial.AddUniform("FlatColor", UniformTypes::FLOAT3, pointLightColors[0]);
-		Renderer::Draw(lightMesh, pointLightTransforms);
+		InstanceRenderer::Draw(lightMesh, pointLightTransforms);
 
-		Renderer::EndScene();
+		InstanceRenderer::EndScene();
 
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);

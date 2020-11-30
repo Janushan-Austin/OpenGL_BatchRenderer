@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
-class InstanceRenderer
+class BatchRenderer
 {
 public:
 	static bool Init();
