@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "InstanceRenderer.h"
 
 #include "OpenGLUtils/Includes/OpenGLIncludeHeaders.h"
 

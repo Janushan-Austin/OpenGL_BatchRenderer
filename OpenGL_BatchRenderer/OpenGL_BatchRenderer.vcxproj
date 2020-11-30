@@ -166,7 +166,7 @@
     <ClCompile Include="src\OpenGLUtils\UtilClasses\Cameras\FlyingFPSCamera.cpp" />
     <ClCompile Include="src\OpenGLUtils\UtilClasses\Models\Mesh.cpp" />
     <ClCompile Include="src\OpenGLUtils\UtilClasses\Models\Model.cpp" />
-    <ClCompile Include="src\OpenGLUtils\UtilClasses\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\OpenGLUtils\UtilClasses\Renderer\InstanceRenderer.cpp" />
     <ClCompile Include="src\OpenGLUtils\UtilClasses\Shader\Material.cpp" />
     <ClCompile Include="src\OpenGLUtils\UtilClasses\Shader\Shader.cpp" />
     <ClCompile Include="src\OpenGLUtils\UtilFunctions\Input.cpp" />
@@ -186,7 +186,7 @@
     <ClInclude Include="src\OpenGLUtils\UtilClasses\Event\Event.h" />
     <ClInclude Include="src\OpenGLUtils\UtilClasses\Models\Mesh.h" />
     <ClInclude Include="src\OpenGLUtils\UtilClasses\Models\Model.h" />
-    <ClInclude Include="src\OpenGLUtils\UtilClasses\Renderer\Renderer.h" />
+    <ClInclude Include="src\OpenGLUtils\UtilClasses\Renderer\InstanceRenderer.h" />
     <ClInclude Include="src\OpenGLUtils\UtilClasses\Shader\Material.h" />
     <ClInclude Include="src\OpenGLUtils\UtilClasses\Shader\Shader.h" />
     <ClInclude Include="src\OpenGLUtils\UtilFunctions\Input.h" />

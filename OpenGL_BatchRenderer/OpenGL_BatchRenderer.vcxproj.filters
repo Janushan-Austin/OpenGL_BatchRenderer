@@ -60,7 +60,7 @@
     <ClCompile Include="src\OpenGLUtils\UtilClasses\Renderer\BatchRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\OpenGLUtils\UtilClasses\Renderer\Renderer.cpp">
+    <ClCompile Include="src\OpenGLUtils\UtilClasses\Renderer\InstanceRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,7 +113,7 @@
     <ClInclude Include="src\OpenGLUtils\UtilClasses\Renderer\BatchRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\OpenGLUtils\UtilClasses\Renderer\Renderer.h">
+    <ClInclude Include="src\OpenGLUtils\UtilClasses\Renderer\InstanceRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
