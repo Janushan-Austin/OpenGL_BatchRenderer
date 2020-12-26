@@ -11,8 +11,8 @@ int main() {
 	glm::mat4 projection;
 	glm::mat4 view;
 
-	glm::vec3 cameraPos(0.0f, 0.0f, 5.0f);
-	FlyingFPSCamera fpsCamera(cameraPos, glm::vec3(0.0f, 1.0f, 0.0f), initialScreenWidth, initialScreenHeight, 90.0f, -90.0f);
+	glm::vec3 cameraPos(5.0f, 5.0f, -5.0f);
+	FlyingFPSCamera fpsCamera(cameraPos, glm::vec3(0.0f, 1.0f, 0.0f), initialScreenWidth, initialScreenHeight, 90.0f, 90.0f);
 	//FlyingCamera fpsCamera(cameraPos, initialScreenWidth, initialScreenHeight, 90.0f, -90.0f);
 
 	// setting up callback listeners since OpenGL allows for only one registered callback function at a time
@@ -223,9 +223,9 @@ int main() {
 	vegetationMesh.SetMaterial(lightingMaterial);
 
 	//Model  backpackModel((char*)"res/Models/Asteroid/rock.obj");
-	Model  backpackModel((char*)"res/Models/NanoSuit/nanosuit.obj");
-	backpackModel.SetMaterial(lightingMaterial);
-	backpackModel.SetUniformContainerName("material");
+	Model  asteroidModel((char*)"res/Models/Asteroid/rock.obj");
+	asteroidModel.SetMaterial(lightingMaterial);
+	asteroidModel.SetUniformContainerName("material");
 
 	float deltaTime = 0;
 	float lastFrame = (float)glfwGetTime();
@@ -236,8 +236,8 @@ int main() {
 	InstanceRenderer::Init();
 
 	std::vector<glm::mat4> nanoSuitTransforms;
-	int rows = 100;
-	int cols = 25;
+	int rows = 3000;
+	int cols = 100;
 	nanoSuitTransforms.resize(rows * cols);
 	for (int x = 0; x < rows; x++)
 	{
@@ -260,7 +260,7 @@ int main() {
 	};
 	glm::vec3 pointLightColors[] =
 	{
-		glm::vec3(0.5f,  0.8f,  0.2f),
+		glm::vec3(0.0f,  0.8f,  0.2f),
 		glm::vec3(0.5f,  0.0f,  0.2f),
 		glm::vec3(0.5f,  0.0f,  0.2f),
 		glm::vec3(0.5f,  0.0f,  0.2f)
@@ -302,7 +302,7 @@ int main() {
 		glm::mat4 model(1.0f);
 
 		//Renderer::Draw(backPackMeshPtrs, nanoSuitTransforms);
-		InstanceRenderer::Draw(backpackModel.GetMeshes(), nanoSuitTransforms);
+		InstanceRenderer::Draw(asteroidModel.GetMeshes(), nanoSuitTransforms);
 
 		
 
@@ -313,8 +313,8 @@ int main() {
 		//setting up directional light properties
 		lightingMaterial.AddUniform("directionalLight.direction", UniformTypes::FLOAT3, glm::vec3(-0.2f, -1.0f, 0.3f));
 		lightingMaterial.AddUniform("directionalLight.ambientStrength", UniformTypes::FLOAT3, glm::vec3(0.2f, 0.2f, 0.2f));
-		lightingMaterial.AddUniform("directionalLight.diffuseStrength", UniformTypes::FLOAT3, glm::vec3(0.5f, 0.5f, 0.5f));
-		lightingMaterial.AddUniform("directionalLight.specularStrength", UniformTypes::FLOAT3, glm::vec3(0.5f, 0.5f, 0.5f));
+		lightingMaterial.AddUniform("directionalLight.diffuseStrength", UniformTypes::FLOAT3, glm::vec3(0.0f));
+		lightingMaterial.AddUniform("directionalLight.specularStrength", UniformTypes::FLOAT3, glm::vec3(0.0));
 
 		// point AddUniformlight 1
 		lightingMaterial.AddUniform("pointLights[0].position", UniformTypes::FLOAT3, pointLightPositions[0]);
