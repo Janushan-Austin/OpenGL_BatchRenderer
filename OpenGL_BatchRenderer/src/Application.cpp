@@ -1,13 +1,13 @@
 #include <iostream>
 #include <functional>
 #include "OpenGLUtils/OpenGLUtils.h"
+#include <OpenGLUtils/UtilClasses/Renderer/Renderer.h>
 
 // Lesson Getting Familar with using lighting materials
 //still a wip
 int main() {
 	const int initialScreenWidth = 2560;
 	const int initialScreenHeight = 1440;
-
 	glm::mat4 projection;
 	glm::mat4 view;
 
@@ -20,7 +20,7 @@ int main() {
 
 	framebufferResizeEvent += [&projection, &fpsCamera](GLFWwindow* window, int width, int height) {
 		projection = (glm::mat4)glm::perspectiveFov(glm::radians(fpsCamera.FOV()), (float)width, (float)height, 0.1f, 100.0f);
-	};
+	}; 
 
 	mouseMovementEvent += std::bind(&FlyingFPSCamera::MouseMovementEvent, &fpsCamera, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 	mouseScrollEvent += std::bind(&FlyingFPSCamera::MouseScrollEvent, &fpsCamera, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
@@ -227,6 +227,10 @@ int main() {
 	asteroidModel.SetMaterial(lightingMaterial);
 	asteroidModel.SetUniformContainerName("material");
 
+	Model  nanoSuitModel((char*)"res/Models/NanoSuit/nanosuit.obj");
+	nanoSuitModel.SetMaterial(lightingMaterial);
+	nanoSuitModel.SetUniformContainerName("material");
+
 	float deltaTime = 0;
 	float lastFrame = (float)glfwGetTime();
 
@@ -234,10 +238,11 @@ int main() {
 	lightingMaterial.AddUniform("projection", UniformTypes::MAT4, glm::mat4(2.0f));
 
 	InstanceRenderer::Init();
+	Renderer::Init();
 
 	std::vector<glm::mat4> nanoSuitTransforms;
-	int rows = 3000;
-	int cols = 100;
+	int rows = 10;// 0;
+	int cols = 10;
 	nanoSuitTransforms.resize(rows * cols);
 	for (int x = 0; x < rows; x++)
 	{
@@ -246,6 +251,20 @@ int main() {
 			int index = z + x * cols;
 			nanoSuitTransforms[index] = glm::translate(glm::mat4(1.0f), glm::vec3(x * 10.0f, 0.0f, z * 5.0f));
 			nanoSuitTransforms[index] = glm::rotate(nanoSuitTransforms[index], glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+	}
+
+	std::vector<glm::mat4> asteroidTransforms;
+	rows = 50;//0;
+	cols = 100;//0;
+	asteroidTransforms.resize(rows* cols);
+	for (int x = 0; x < rows; x++)
+	{
+		for (int z = 0; z < cols; z++)
+		{
+			int index = z + x * cols;
+			asteroidTransforms[index] = glm::translate(glm::mat4(1.0f), glm::vec3(x * 10.0f, 0.0f, z * 5.0f));
+			asteroidTransforms[index] = glm::rotate(asteroidTransforms[index], glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 	}
 
@@ -261,9 +280,12 @@ int main() {
 	glm::vec3 pointLightColors[] =
 	{
 		glm::vec3(0.0f,  0.8f,  0.2f),
-		glm::vec3(0.5f,  0.0f,  0.2f),
-		glm::vec3(0.5f,  0.0f,  0.2f),
-		glm::vec3(0.5f,  0.0f,  0.2f)
+		glm::vec3(0.0f,  0.8f,  0.2f),
+		glm::vec3(0.0f,  0.8f,  0.2f),
+		glm::vec3(0.0f,  0.8f,  0.2f),
+		//glm::vec3(0.5f,  0.0f,  0.2f),
+		//glm::vec3(0.5f,  0.0f,  0.2f),
+		//glm::vec3(0.5f,  0.0f,  0.2f)
 	};
 
 	std::vector<glm::mat4> pointLightTransforms(numberOfPointLights);
@@ -275,19 +297,32 @@ int main() {
 
 
 	projection = glm::perspectiveFov(glm::radians(fpsCamera.FOV()), (float)fpsCamera.Width(), (float)fpsCamera.Height(), 0.1f, 1000.0f);
+	int useInstancing = 1;
+	float rendererChangeTime = .50;
 	while (!glfwWindowShouldClose(window)) {
 		//check input
 		float currentTime = (float)glfwGetTime();
 		deltaTime = currentTime - lastFrame;
 		lastFrame = currentTime;
+		rendererChangeTime += deltaTime;
 
 		processInput(window);
+		if (rendererChangeTime >= .2 && glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+		{
+			useInstancing = ~useInstancing & 1;
+			rendererChangeTime = 0;
+		}
 		processCameraInput(window, fpsCamera, deltaTime);
-
-		InstanceRenderer::BeginScene(projection, fpsCamera);
+		if (useInstancing)
+		{
+			InstanceRenderer::BeginScene(projection, fpsCamera);
+		}
+		else
+		{
+			Renderer::BeginScene(projection, fpsCamera);
+		}
 
 		lightingMaterial.GetShader()->Bind();
-		int useInstancing = 1;
 		lightingMaterial.AddUniform("useInstancing", UniformTypes::INT, useInstancing);
 		flatColorMaterial.AddUniform("useInstancing", UniformTypes::INT, useInstancing);
 		
@@ -302,7 +337,7 @@ int main() {
 		glm::mat4 model(1.0f);
 
 		//Renderer::Draw(backPackMeshPtrs, nanoSuitTransforms);
-		InstanceRenderer::Draw(asteroidModel.GetMeshes(), nanoSuitTransforms);
+		
 
 		
 
@@ -351,10 +386,27 @@ int main() {
 
 
 		flatColorMaterial.AddUniform("FlatColor", UniformTypes::FLOAT3, pointLightColors[0]);
-		InstanceRenderer::Draw(lightMesh, pointLightTransforms);
+		if (useInstancing)
+		{
+			InstanceRenderer::Draw(asteroidModel.GetMeshes(), asteroidTransforms);
+			InstanceRenderer::Draw(nanoSuitModel.GetMeshes(), nanoSuitTransforms);
+			InstanceRenderer::Draw(lightMesh, pointLightTransforms);
+		}
+		else
+		{
+			Renderer::Draw(asteroidModel.GetMeshes(), asteroidTransforms);
+			Renderer::Draw(nanoSuitModel.GetMeshes(), nanoSuitTransforms);
+			Renderer::Draw(lightMesh, pointLightTransforms);
+		}
 
-		InstanceRenderer::EndScene();
-
+		if (useInstancing)
+		{
+			InstanceRenderer::EndScene();
+		}
+		else
+		{
+			Renderer::EndScene();
+		}
 		// check and call events and swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
