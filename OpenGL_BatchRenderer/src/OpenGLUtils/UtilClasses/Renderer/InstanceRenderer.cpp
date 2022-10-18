@@ -95,8 +95,9 @@ void InstanceRenderer::EndScene()
 
 void InstanceRenderer::Flush()
 {
-
+	static bool firstFlush = true;
 	uint32_t maxSizeofBuffer = sizeof(glm::mat4) * MaxInstances;
+	glBindVertexArray(InstancingVAO);
 
 	for (auto& materialMapPair : MaterialMap)
 	{
@@ -118,8 +119,6 @@ void InstanceRenderer::Flush()
 
 			glBindBuffer(GL_ARRAY_BUFFER, mesh->GetVBO());
 
-
-			glBindVertexArray(InstancingVAO);
 			// vertex positions
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
@@ -130,10 +129,11 @@ void InstanceRenderer::Flush()
 			glEnableVertexAttribArray(2);
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoord));
 
+
 			glBindBuffer(GL_ARRAY_BUFFER, InstancingVBO);
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->GetEBO());
-			 
+
 			uint32_t indicesCount = mesh->GetIndicesCount();
 
 			while (totalInstanceCount > MaxInstances)
@@ -152,8 +152,13 @@ void InstanceRenderer::Flush()
 			}
 
 			meshMapPair.second.instanceCount = 0;
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
+
 	}
+
+	glBindVertexArray(0);
 }
 
 void InstanceRenderer::PutInRenderingBucket(Material* material, MaterialID materialID, Mesh* mesh, MeshID meshID, std::vector<glm::mat4>& transforms)
@@ -179,7 +184,7 @@ void InstanceRenderer::PutInRenderingBucket(Material* material, MaterialID mater
 	if (meshIterator != meshMap.end())
 	{
 		std::vector<glm::mat4>& meshTransforms = meshIterator->second.meshTransforms;
-		uint32_t tempInstanceCount =  meshIterator->second.instanceCount + transforms.size();
+		uint32_t tempInstanceCount = meshIterator->second.instanceCount + transforms.size();
 		if (tempInstanceCount > meshTransforms.capacity())
 		{
 			meshTransforms.reserve(meshTransforms.size() * 2 + transforms.size());
@@ -188,10 +193,10 @@ void InstanceRenderer::PutInRenderingBucket(Material* material, MaterialID mater
 		//meshTransforms.insert(meshTransforms.begin() + meshIterator->second.instanceCount, transforms.begin(), transforms.end());
 		uint32_t offset = meshIterator->second.instanceCount;
 		memcpy(&meshTransforms.data()[offset], transforms.data(), transforms.size() * sizeof(glm::mat4));
-;		/*for (int i = 0; i < transforms.size(); i++, offset++)
-		{
-			meshTransforms[offset] = transforms[i];
-		}*/
+		;		/*for (int i = 0; i < transforms.size(); i++, offset++)
+				{
+					meshTransforms[offset] = transforms[i];
+				}*/
 		meshIterator->second.instanceCount = tempInstanceCount;
 	}
 	else
