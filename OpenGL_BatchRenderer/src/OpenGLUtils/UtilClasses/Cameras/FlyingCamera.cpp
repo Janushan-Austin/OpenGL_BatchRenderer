@@ -43,10 +43,10 @@ void FlyingCamera::ProcessKeyboardInput(MovementDirection direction, float delta
 		cameraPos -= cameraUp * CameraSpeed * deltaTime;
 	}
 	else if (direction == MovementDirection::ROLL_LEFT) {
-		ApplyRoll(CameraSpeed * deltaTime * 100 );
+		ApplyRoll(CameraSpeed * deltaTime * 25 );
 	}
 	else if (direction == MovementDirection::ROLL_RIGHT) {
-		ApplyRoll(-CameraSpeed * deltaTime * 100);
+		ApplyRoll(-CameraSpeed * deltaTime * 25);
 	}
 }
 
